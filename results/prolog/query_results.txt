@@ -1,0 +1,39 @@
+### Tutti i cluster semantici disponibili
+Query: cluster_label(C, L)
+
+{'C': 0, 'L': 'thriller_drama'}
+{'C': 1, 'L': 'action_thriller'}
+{'C': 2, 'L': 'comedy'}
+{'C': 3, 'L': 'drama_high_rating'}
+
+
+### Esempio: 10 film nel cluster comedy
+Query: movie_in_cluster(Title, comedy)
+
+{'Title': 'The Revenant'}
+{'Title': 'Minions'}
+{'Title': 'Inside Out'}
+{'Title': 'Pixels'}
+{'Title': 'Cinderella'}
+{'Title': 'The Hunger Games: Mockingjay - Part 2'}
+{'Title': 'Ted 2'}
+{'Title': 'Pitch Perfect 2'}
+{'Title': 'Goosebumps'}
+{'Title': 'The Good Dinosaur'}
+
+
+### Esempio: film action nel cluster action_thriller
+Query: movie_in_cluster_with_genre(Title, action_thriller, action)
+
+{'Title': 'Jurassic World'}
+{'Title': 'Mad Max: Fury Road'}
+{'Title': 'Star Wars: The Force Awakens'}
+{'Title': 'Furious 7'}
+{'Title': 'Terminator Genisys'}
+{'Title': 'Spectre'}
+{'Title': 'Jupiter Ascending'}
+{'Title': 'Avengers: Age of Ultron'}
+{'Title': 'Taken 3'}
+{'Title': 'Ant-Man'}
+
+

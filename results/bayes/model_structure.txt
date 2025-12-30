@@ -1,0 +1,10 @@
+Nodi:
+- cluster_id
+- popularity_disc
+- voteAvg_disc
+- runtime_disc
+
+Archi:
+- ('cluster_id', 'popularity_disc')
+- ('cluster_id', 'voteAvg_disc')
+- ('cluster_id', 'runtime_disc')
