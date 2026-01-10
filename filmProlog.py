@@ -26,33 +26,26 @@ def prolog_quote(s: str) -> str:
     return f"'{s}'"
 
 
-def write_kb_from_csv(csv_path: str, kb_path: str, max_rows: int | None = None,) -> Tuple[int, List[str]]:
-    """
-    Crea una Knowledge Base Prolog con:
-    - mapping titolo → atomo
-    - cluster di appartenenza
-    - feature numeriche
-    - generi del film
-    """
-    # Crea la cartella di output se non esiste
+def write_kb_from_csv(csv_path: str, kb_path: str, max_rows: int | None = None) -> Tuple[int, List[str]]:
     os.makedirs(os.path.dirname(kb_path), exist_ok=True)
 
-    # Apre il CSV
+    # 1) Apri CSV
     with open(csv_path, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames or []
 
-        # Colonne dei generi (one-hot encoded)
         genre_cols = [c for c in fieldnames if c.startswith("is_")]
-        
-        # Colonne numeriche
         numeric_cols = ["popularity", "vote_average", "vote_count", "runtime", "release_year"]
 
-        n = 0  # Contatore righe lette
+        n = 0
 
-        # Apre il file Prolog in scrittura
+        # 2) Apri KB in scrittura
         with open(kb_path, "w", encoding="utf-8") as kb:
-            kb.write(" Knowledge Base \n")
+            kb.write("% Knowledge Base\n")
+            kb.write(":- discontiguous cluster/2.\n")
+            kb.write(":- discontiguous feature/3.\n")
+            kb.write(":- discontiguous title_atom/2.\n")
+            kb.write(":- discontiguous has_genre/2.\n\n")
 
             # Etichette semantiche dei cluster
             kb.write("cluster_label(0, thriller_drama).\n")
@@ -60,45 +53,38 @@ def write_kb_from_csv(csv_path: str, kb_path: str, max_rows: int | None = None,)
             kb.write("cluster_label(2, comedy).\n")
             kb.write("cluster_label(3, drama_high_rating).\n\n")
 
-            # Regola: informazioni complete di un film
+            # Regole
             kb.write("% movie_info('Titolo', ClusterId, Label).\n")
             kb.write("movie_info(Title, Cluster, Label) :- title_atom(A, Title), cluster(A, Cluster), cluster_label(Cluster, Label).\n\n")
 
-            # Regola: film appartenenti a un cluster
             kb.write("% movie_in_cluster('Titolo', Label).\n")
             kb.write("movie_in_cluster(Title, Label) :- movie_info(Title, _C, Label).\n\n")
 
-            # Regola: verifica genere di un film
             kb.write("% movie_has_genre('Titolo', Genre).\n")
             kb.write("movie_has_genre(Title, Genre) :- title_atom(A, Title), has_genre(A, Genre).\n\n")
 
-            # Regola: film di un cluster con un certo genere
             kb.write("% movie_in_cluster_with_genre('Titolo', Label, Genre).\n")
             kb.write("movie_in_cluster_with_genre(Title, Label, Genre) :- title_atom(A, Title), cluster(A, C), cluster_label(C, Label), has_genre(A, Genre).\n\n")
 
-            kb.write(" Fatti \n")
+            kb.write("% Fatti\n\n")
 
-            # Itera sulle righe del CSV
+            # 3) Itera righe CSV e scrivi fatti
             for row in reader:
                 if max_rows is not None and n >= max_rows:
                     break
 
-                # Titolo originale del film
                 title = row.get("original_title", "")
                 atom = safe_atom(title)
 
-                # Associazione atomo → titolo
                 kb.write(f"title_atom({atom}, {prolog_quote(title)}).\n")
 
-                # Cluster del film
                 cluster_id = row.get("cluster_id", None)
-                if cluster_id is not None and cluster_id != "":
+                if cluster_id not in (None, ""):
                     kb.write(f"cluster({atom}, {int(float(cluster_id))}).\n")
 
-                # Feature numeriche
                 for col in numeric_cols:
                     v = row.get(col, None)
-                    if v is None or v == "":
+                    if v in (None, ""):
                         continue
                     try:
                         fv = float(v)
@@ -106,7 +92,6 @@ def write_kb_from_csv(csv_path: str, kb_path: str, max_rows: int | None = None,)
                     except ValueError:
                         pass
 
-                # Generi del film
                 for gc in genre_cols:
                     gv = row.get(gc, "0")
                     try:
@@ -119,8 +104,8 @@ def write_kb_from_csv(csv_path: str, kb_path: str, max_rows: int | None = None,)
                 kb.write("\n")
                 n += 1
 
-    # Ritorna numero righe e lista dei generi
     return n, genre_cols
+
 
 
 def run_sample_queries(kb_path: str, out_path: str) -> None:

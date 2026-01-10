@@ -1,6 +1,7 @@
 Tutti i cluster semantici disponibili
 Query: cluster_label(C, L)
 
+{'C': 0, 'L': 'thriller_drama'}
 {'C': 1, 'L': 'action_thriller'}
 {'C': 2, 'L': 'comedy'}
 {'C': 3, 'L': 'drama_high_rating'}
@@ -24,6 +25,7 @@ Query: movie_in_cluster(Title, comedy)
 Esempio: film action nel cluster action_thriller
 Query: movie_in_cluster_with_genre(Title, action_thriller, action)
 
+{'Title': 'Jurassic World'}
 {'Title': 'Mad Max: Fury Road'}
 {'Title': 'Star Wars: The Force Awakens'}
 {'Title': 'Furious 7'}
@@ -33,6 +35,5 @@ Query: movie_in_cluster_with_genre(Title, action_thriller, action)
 {'Title': 'Avengers: Age of Ultron'}
 {'Title': 'Taken 3'}
 {'Title': 'Ant-Man'}
-{'Title': 'Tomorrowland'}
 
 
